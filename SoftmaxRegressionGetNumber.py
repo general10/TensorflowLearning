@@ -34,8 +34,9 @@ train_step = tf.train.GradientDescentOptimizer(0.5).minimize(cross_entropy)
 tf.global_variables_initializer().run()
 
 # 每次取1000个样本进行训练
-# 书上是取100 训出来的结果是92.05%(虽然每次也都在变 但变化不大)
+# 书上是取100训出来的结果是92.05%(虽然每次也都在变 但变化不大)
 # 改成1000之后训出来是92.57% 表示根本没啥差距= =
+# 改成10000也没多多少 所以还有要往后学更好的方法(函数)2333
 for i in range(10000):
     batch_xs, batch_ys = mnist.train.next_batch(10000)
     train_step.run({x: batch_xs, y_: batch_ys})
