@@ -1,3 +1,5 @@
+# 安装教程 https://blog.csdn.net/weixin_42359147/article/details/80622306
+
 import tensorflow as tf
 
 a = tf.test.is_built_with_cuda()  # 判断CUDA是否可以用
