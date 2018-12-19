@@ -3,6 +3,7 @@ import sklearn.preprocessing as prep
 import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
 
+# Xaiver初始化器 初始化权重
 def xavier_init(fan_in, fan_out, constant=1):
     low = -constant * np.sqrt(6.0 / (fan_in + fan_out))
     high = constant * np.sqrt(6.0 / (fan_in + fan_out))
@@ -11,12 +12,11 @@ def xavier_init(fan_in, fan_out, constant=1):
                              dtype=tf.float32)
 
 class AdditiveGaussianNoiseAutoencoder(object):
-    def __init__(self, n_input, n_hidden, transfer_function = tf.nn.softplus, optimizer = tf.train.AdamOptimizer(),
-                 scale = 0.1):
-        self.n_input = n_input
-        self.n_hidden = n_hidden
-        self.transfer = transfer_function
-        self.scale = tf.placeholder(tf.float32)
+    def __init__(self, n_input, n_hidden, transfer_function = tf.nn.softplus, optimizer = tf.train.AdamOptimizer(),scale = 0.1):
+        self.n_input = n_input  # 输入变量量
+        self.n_hidden = n_hidden  # 隐含层节点层数
+        self.transfer = transfer_function  # 隐含层激活函数
+        self.scale = tf.placeholder(tf.float32)  # 高斯噪声系数
         self.training_scale = scale
         network_weights = self._initialize_weights()
         self.weights = network_weights
@@ -27,7 +27,7 @@ class AdditiveGaussianNoiseAutoencoder(object):
         self.reconstruction = tf.add(tf.matmul(self.hidden, self.weights['w2']), self.weights['b2'])
 
         self.cost = 0.5 * tf.reduce_sum(tf.pow(tf.subtract(self.reconstruction, self.x), 2.0))
-        self.optimizer = optimizer.minimize(self.cost)
+        self.optimizer = optimizer.minimize(self.cost)  # 优化器
 
         init = tf.global_variables_initializer()
         self.sess = tf.Session()
@@ -60,25 +60,26 @@ class AdditiveGaussianNoiseAutoencoder(object):
     def reconstruct(self, x):
         return self.sess.run(self.reconstruction, feed_dict={self.x: x, self.scale: self.training_scale})
 
-    def getWeights(self):
+    def get_weights(self):
         return self.sess.run(self.weights['w1'])
 
-    def getBiases(self):
+    def get_biases(self):
         return self.sess.run(self.weights['b1'])
 
-def standard_scale(X_train, X_test):
-    preprocessor = prep.StandardScaler().fit(X_train)
-    X_train = preprocessor.transform(X_train)
-    X_test = preprocessor.transform(X_test)
-    return X_train, X_test
+
+def standard_scale(x_train, x_test):
+    preprocessor = prep.StandardScaler().fit(x_train)
+    x_train = preprocessor.transform(x_train)
+    x_test = preprocessor.transform(x_test)
+    return x_train, x_test
 
 
 def get_random_block_from_data(data, batch_size):
     start_index = np.random.randint(0, len(data) - batch_size)
     return data[start_index:(start_index + batch_size)]
 
-mnist = input_data.read_data_sets('MNIST_data', one_hot=True)
 
+mnist = input_data.read_data_sets('MNIST_data', one_hot=True)
 
 X_train, X_test = standard_scale(mnist.train.images, mnist.test.images)
 
